@@ -2,7 +2,6 @@
 
 
 #include "Actors/BasicItem.h"
-
 #include "BasicInventory/BasicInventoryCharacter.h"
 #include "Components/SphereComponent.h"
 #include "Components/WidgetComponent.h"
@@ -39,7 +38,6 @@ void ABasicItem::BeginPlay()
 
 void ABasicItem::OnOverlapBegin(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
-	GEngine->AddOnScreenDebugMessage(1, 3.0f, FColor::Green, TEXT("OverlapBegin Function called, Display here Pickup Widget"));
 	if(IsValid(PickupWidget))
 	{
 		PickupWidget->SetVisibility(true);
@@ -49,13 +47,11 @@ void ABasicItem::OnOverlapBegin(UPrimitiveComponent* OverlappedComp, AActor* Oth
 	if(IsValid(OverlappingPlayer))
 	{
 		OverlappingPlayer->SetOverlappingActor(this);
-		GEngine->AddOnScreenDebugMessage(1, 3.0f, FColor::Green, *FString::Printf(TEXT("Overlapping Actor : %s"), *GetNameSafe(OtherActor)));
 	}
 }
 
 void ABasicItem::OnOverlapEnd(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex)
 {
-	GEngine->AddOnScreenDebugMessage(1, 3.0f, FColor::Black, TEXT("OverlapEnd Function called, Hide here Pickup Widget"));
 	if(IsValid(PickupWidget))
 	{
 		PickupWidget->SetVisibility(false);
@@ -65,9 +61,7 @@ void ABasicItem::OnOverlapEnd(UPrimitiveComponent* OverlappedComp, AActor* Other
 	ABasicInventoryCharacter* OverlappingPlayer = Cast<ABasicInventoryCharacter>(OtherActor);
 	if(IsValid(OverlappingPlayer))
 	{
-		//Add here item to inventory component & destroy
 		OverlappingPlayer->SetOverlappingActor(nullptr);
-		GEngine->AddOnScreenDebugMessage(1, 3.0f, FColor::Black, *FString::Printf(TEXT("END Overlapping Actor : %s"), *GetNameSafe(OtherActor)));
 	}
 }
 

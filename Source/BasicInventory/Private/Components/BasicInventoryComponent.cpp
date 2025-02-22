@@ -2,9 +2,7 @@
 
 
 #include "Components/BasicInventoryComponent.h"
-
 #include "Actors/BasicItem.h"
-#include "Blueprint/UserWidget.h"
 
 UBasicInventoryComponent::UBasicInventoryComponent()
 {
@@ -23,31 +21,9 @@ void UBasicInventoryComponent::AddItem(ABasicItem* ItemToAdd)
 	FObjectDuplicationParameters Parameters = FObjectDuplicationParameters(ItemToAdd,GetTransientPackage());
 	ABasicItem* NewItem = Cast<ABasicItem>(StaticDuplicateObjectEx(Parameters));
 	if(!NewItem) return;
-	//{
-	//	Items.Add(NewItem);
-	//}
-	//else
-	//{
-	//	GEngine->AddOnScreenDebugMessage(1, 2.0f, FColor::Green, *FString::Printf(TEXT("ItemToAdd in AddItem NOT VALID")));
-	//}
-	//if(!ItemToAdd) return;
-	//
-	////if(!Items.Contains(ItemToAdd))
-	////{
-	////	Items.Add(ItemToAdd);
-	////}
-	////else
-	////{
-	////	for(int i = 0; i < Items.Num(); ++i)
-	////	{
-	////		//If we already have the item in the inventory, increase stack
-	////		if(Items[i].Get()->GetItemName() == ItemToAdd->GetItemName())
-	////		{
-	////			Items[i].Get()->IncreaseQuantity();
-	////			GEngine->AddOnScreenDebugMessage(1, 3.0f, FColor::Green, *FString::Printf(TEXT("Item count -> %d"), Items[i].Get()->GetQuantity()));
-	////		}
-	////	}
-	////}
+
+	//Store the Owner of the item (aka the player) for future use when adding impulse in DropItem()]
+	NewItem->SetOwnerActor(GetOwner());
 	if(Items.IsEmpty())
 	{
 		Items.Add(NewItem);
@@ -59,7 +35,6 @@ void UBasicInventoryComponent::AddItem(ABasicItem* ItemToAdd)
 		if(Items[i] && Items[i]->GetItemName() == NewItem->GetItemName())
 		{
 			Items[i]->IncreaseQuantity();
-			GEngine->AddOnScreenDebugMessage(1, 3.0f, FColor::Green, *FString::Printf(TEXT("Item count -> %d"), Items[i]->GetQuantity()));
 			return;
 		}
 	}
@@ -77,7 +52,6 @@ void UBasicInventoryComponent::DropItem(int32 IndexItemInInventory)
 		if(ItemToDrop->GetQuantity() > 1)
 		{
 			Items[IndexItemInInventory]->DecreaseQuantity();
-			GEngine->AddOnScreenDebugMessage(1, 3.0f, FColor::Green, *FString::Printf(TEXT("Item count -> %d"), Items[IndexItemInInventory]->GetQuantity()));
 		}
 		else
 		{
@@ -85,52 +59,25 @@ void UBasicInventoryComponent::DropItem(int32 IndexItemInInventory)
 		}
 
 		//Spawning item in the world
-		FVector SpawnLocation = GetOwner()->GetActorLocation() + FVector(-100.0f, 0.0f, 150.0f);
+		FVector SpawnLocation = GetOwner()->GetActorLocation() + FVector(150.0f, 0.0f, 150.0f);
 		FRotator SpawnRotation = FRotator::ZeroRotator;
 
 		FTransform ItemSpawnTransform;
 		ItemSpawnTransform.SetLocation(SpawnLocation);
 		ItemSpawnTransform.SetRotation(SpawnRotation.Quaternion());
-		
-		ABasicItem* DroppedItem = GetWorld()->SpawnActorDeferred<ABasicItem>(ItemToDrop->GetClass(), ItemSpawnTransform, ItemToDrop->GetOwner().Get(), Cast<APawn>(ItemToDrop->GetOwner().Get()), ESpawnActorCollisionHandlingMethod::AlwaysSpawn);
+
+		AActor* ItemOwner = ItemToDrop->GetOwner().Get();
+		ABasicItem* DroppedItem = GetWorld()->SpawnActorDeferred<ABasicItem>(ItemToDrop->GetClass(), ItemSpawnTransform, ItemOwner, Cast<APawn>(ItemOwner), ESpawnActorCollisionHandlingMethod::AlwaysSpawn);
 		if(DroppedItem)
 		{
 			DroppedItem->GetMesh()->SetSimulatePhysics(true);
 			DroppedItem->SetActorEnableCollision(true);
 			DroppedItem->GetMesh()->SetUseCCD(true);
-			DroppedItem->GetMesh()->AddImpulse(GetOwner()->GetActorForwardVector()  * 300.0f);
 			DroppedItem->FinishSpawning(ItemSpawnTransform);
-			GEngine->AddOnScreenDebugMessage(1, 3.0f, FColor::Red, *FString::Printf(TEXT("Item Dropped")));
+			if(IsValid(DroppedItem->GetMesh()) && IsValid(DroppedItem->GetOwner().Get()))
+			{
+				DroppedItem->GetMesh()->AddImpulse(DroppedItem->GetOwner().Get()->GetActorForwardVector() * FVector(50000.0f, 0.0f, 50000.0f));
+			}
 		}
-		
-		GEngine->AddOnScreenDebugMessage(1, 3.0f, FColor::Red, *FString::Printf(TEXT("Item removed Actor")));
-		GEngine->AddOnScreenDebugMessage(1, 3.0f, FColor::Red, *FString::Printf(TEXT("Inventory size : %d"), Items.Num()));
 	}
 }
-
-//Array<FString> UBasicInventoryComponent::GetItemList() const
-//
-//	TArray<FString> ItemNames;
-//	for (const TObjectPtr<ABasicItem>& Item : Items)
-//	{
-//		if (Item)
-//		{
-//			ItemNames.Add(Item->GetItemName());
-//		}
-//	}
-//	return ItemNames;
-//
-
-//TArray<ABasicItem*> UBasicInventoryComponent::GetItems() const
-//{
-//	TArray<ABasicItem*> Results;
-//	
-//	for (const TObjectPtr<ABasicItem>& Item : Items)
-//	{
-//		if (Item)
-//		{
-//			Results.Add(Item.Get());
-//		}
-//	}
-//	return Results;
-//}

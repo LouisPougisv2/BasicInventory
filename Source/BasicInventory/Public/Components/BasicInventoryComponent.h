@@ -22,9 +22,6 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Inventory")
 	void DropItem(int32 IndexItemInInventory);
 
-	//UFUNCTION(BlueprintCallable, Category = "Inventory")
-	//TArray<FString> GetItemList() const;
-
 	UFUNCTION(BlueprintCallable, Category = "Inventory")
 	TArray<ABasicItem*> GetItems() { return Items; }
 

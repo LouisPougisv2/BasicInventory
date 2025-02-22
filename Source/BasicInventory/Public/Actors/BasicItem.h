@@ -15,7 +15,8 @@ public:
 
 	ABasicItem();
 	virtual void Tick(float DeltaTime) override;
-	
+
+	void SetOwnerActor(const TWeakObjectPtr<AActor> InOwner) { OwnerActor = InOwner; }
 	TWeakObjectPtr<AActor> GetOwner() const { return OwnerActor; }
 	
 	FORCEINLINE UStaticMeshComponent* GetMesh() const { return ItemMesh; }

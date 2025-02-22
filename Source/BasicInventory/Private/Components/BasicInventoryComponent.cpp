@@ -22,14 +22,14 @@ void UBasicInventoryComponent::AddItem(ABasicItem* ItemToAdd)
 	//Since ItemToAdd is to be destroyed from the world (next Blueprint Node), we create a copy of it, that'll be added to the inventory 
 	FObjectDuplicationParameters Parameters = FObjectDuplicationParameters(ItemToAdd,GetTransientPackage());
 	ABasicItem* NewItem = Cast<ABasicItem>(StaticDuplicateObjectEx(Parameters));
-	if(NewItem)
-	{
-		Items.Add(NewItem);
-	}
-	else
-	{
-		GEngine->AddOnScreenDebugMessage(1, 2.0f, FColor::Green, *FString::Printf(TEXT("ItemToAdd in AddItem NOT VALID")));
-	}
+	if(!NewItem) return;
+	//{
+	//	Items.Add(NewItem);
+	//}
+	//else
+	//{
+	//	GEngine->AddOnScreenDebugMessage(1, 2.0f, FColor::Green, *FString::Printf(TEXT("ItemToAdd in AddItem NOT VALID")));
+	//}
 	//if(!ItemToAdd) return;
 	//
 	////if(!Items.Contains(ItemToAdd))
@@ -48,22 +48,23 @@ void UBasicInventoryComponent::AddItem(ABasicItem* ItemToAdd)
 	////		}
 	////	}
 	////}
-	//if(Items.IsEmpty())
-	//{
-	//	Items.Add(ItemToAdd);
-	//	return;
-	//}
-	//for(int i = 0; i < Items.Num(); ++i)
-	//{
-	//	//If we already have the item in the inventory, increase stack
-	//	if(Items[i] && Items[i]->GetItemName() == ItemToAdd->GetItemName())
-	//	{
-	//		Items[i]->IncreaseQuantity();
-	//		GEngine->AddOnScreenDebugMessage(1, 3.0f, FColor::Green, *FString::Printf(TEXT("Item count -> %d"), Items[i]->GetQuantity()));
-	//	}
-	//}
-	////Item not in inventory yet
-	//Items.Add(ItemToAdd);
+	if(Items.IsEmpty())
+	{
+		Items.Add(NewItem);
+		return;
+	}
+	for(int i = 0; i < Items.Num(); ++i)
+	{
+		//If we already have the item in the inventory, increase stack
+		if(Items[i] && Items[i]->GetItemName() == NewItem->GetItemName())
+		{
+			Items[i]->IncreaseQuantity();
+			GEngine->AddOnScreenDebugMessage(1, 3.0f, FColor::Green, *FString::Printf(TEXT("Item count -> %d"), Items[i]->GetQuantity()));
+			return;
+		}
+	}
+	//Item not in inventory yet
+	Items.Add(NewItem);
 	
 }
 
@@ -78,7 +79,10 @@ void UBasicInventoryComponent::DropItem(int32 IndexItemInInventory)
 			Items[IndexItemInInventory]->DecreaseQuantity();
 			GEngine->AddOnScreenDebugMessage(1, 3.0f, FColor::Green, *FString::Printf(TEXT("Item count -> %d"), Items[IndexItemInInventory]->GetQuantity()));
 		}
-		Items.RemoveAt(IndexItemInInventory);
+		else
+		{
+			Items.RemoveAt(IndexItemInInventory);
+		}
 
 		//Spawning item in the world
 		FVector SpawnLocation = GetOwner()->GetActorLocation() + FVector(-100.0f, 0.0f, 150.0f);

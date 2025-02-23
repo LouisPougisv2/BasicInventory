@@ -14,7 +14,9 @@ class BASICINVENTORY_API ABasicItem : public AActor
 public:	
 
 	ABasicItem();
+	virtual void Destroyed() override;
 	virtual void Tick(float DeltaTime) override;
+	void PlayDropEffects();
 
 	void SetOwnerActor(const TWeakObjectPtr<AActor> InOwner) { OwnerActor = InOwner; }
 	TWeakObjectPtr<AActor> GetOwner() const { return OwnerActor; }
@@ -60,5 +62,21 @@ private:
 
 	UPROPERTY(EditAnywhere,BlueprintReadOnly, Category = "Item Properties", meta = (AllowPrivateAccess = "true"))
 	UTexture2D* ItemThumbnail;
+
+	/**
+	 * Effects
+	 */
 	
+	UPROPERTY(EditAnywhere, Category = "Pickup settings")
+	TObjectPtr<class USoundCue> PickupSound;
+	
+	UPROPERTY(EditAnywhere,Category = "Pickup settings")
+	class UParticleSystem* PickupParticles;
+
+	UPROPERTY(EditAnywhere, Category = "Pickup settings")
+	TObjectPtr<class USoundCue> DropSound;
+	
+	UPROPERTY(EditAnywhere, Category = "Pickup settings")
+	class UParticleSystem* DropParticles;
+
 };

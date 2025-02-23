@@ -5,6 +5,8 @@
 #include "BasicInventory/BasicInventoryCharacter.h"
 #include "Components/SphereComponent.h"
 #include "Components/WidgetComponent.h"
+#include "Kismet/GameplayStatics.h"
+#include "Sound/SoundCue.h"
 
 // Sets default values
 ABasicItem::ABasicItem()
@@ -22,6 +24,20 @@ ABasicItem::ABasicItem()
 	PickupWidget = CreateDefaultSubobject<UWidgetComponent>(TEXT("PickUpWidget"));
 	PickupWidget->SetupAttachment(GetRootComponent());
 	PickupWidget->SetVisibility(false);
+}
+
+void ABasicItem::Destroyed()
+{
+	if(PickupSound)
+	{
+		UGameplayStatics::PlaySoundAtLocation(this, PickupSound, GetActorLocation(), GetActorRotation());
+	}
+
+	if(PickupParticles)
+	{
+		UGameplayStatics::SpawnEmitterAtLocation(this, PickupParticles, GetActorLocation(), GetActorRotation());
+	}
+	Super::Destroyed();
 }
 
 // Called when the game starts or when spawned
@@ -62,6 +78,19 @@ void ABasicItem::OnOverlapEnd(UPrimitiveComponent* OverlappedComp, AActor* Other
 	if(IsValid(OverlappingPlayer))
 	{
 		OverlappingPlayer->SetOverlappingActor(nullptr);
+	}
+}
+
+void ABasicItem::PlayDropEffects()
+{
+	if(DropSound)
+	{
+		UGameplayStatics::PlaySoundAtLocation(this, DropSound, GetActorLocation(), GetActorRotation());
+	}
+	
+	if(DropParticles)
+	{
+		UGameplayStatics::SpawnEmitterAtLocation(this, DropParticles, GetActorLocation(), GetActorRotation());
 	}
 }
 

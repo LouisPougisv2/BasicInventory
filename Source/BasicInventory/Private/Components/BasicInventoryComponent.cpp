@@ -74,10 +74,13 @@ void UBasicInventoryComponent::DropItem(int32 IndexItemInInventory)
 			DroppedItem->SetActorEnableCollision(true);
 			DroppedItem->GetMesh()->SetUseCCD(true);
 			DroppedItem->FinishSpawning(ItemSpawnTransform);
+			
 			if(IsValid(DroppedItem->GetMesh()) && IsValid(DroppedItem->GetOwner().Get()))
 			{
+				//Adding impulse
 				DroppedItem->GetMesh()->AddImpulse(DroppedItem->GetOwner().Get()->GetActorForwardVector() * FVector(50000.0f, 0.0f, 50000.0f));
 			}
+			DroppedItem->PlayDropEffects();
 		}
 	}
 }

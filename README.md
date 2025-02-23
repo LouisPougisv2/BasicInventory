@@ -1,5 +1,4 @@
-# BasicInventory
- UE5 Basic Inventory
+# UE5 Basic Inventory
 
 Readme - Design/ImplementationProcess:
 [ReadMe - Inventory System Test - Louis Pougis.pdf](https://github.com/user-attachments/files/18932852/ReadMe.-.Inventory.System.Test.-.Louis.Pougis.pdf)
